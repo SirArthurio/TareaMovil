@@ -1,10 +1,11 @@
 import { Component, inject, Inject, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Task } from 'src/app/model/task';
+import { Task } from 'src/app/model/Task';
 import { IonicModule } from '@ionic/angular';
 import { UserService } from 'src/app/service/user.service';
-import { Observable, of } from 'rxjs';
+import {   pencilOutline, trashOutline, createOutline } from 'ionicons/icons';
+import { addIcons } from 'ionicons';
 
 @Component({
   selector: 'app-user',
@@ -17,20 +18,21 @@ export class UserPage implements OnInit {
   users: Task[] = [];
   userForm: FormGroup;
   editingUser: Task | null = null;
-  data$: Observable<Task[]> = of([]);
   isEditing: boolean = false;
 
   constructor(private fb: FormBuilder, private tas: UserService) {
-    this.userForm = this.fb.group({
-      id: [0],
+    addIcons({ pencilOutline, 
+      trashOutline,
+      createOutline });    this.userForm = this.fb.group({
+      id: [null],
       nombre: ['', Validators.required],
       detalle: ['', Validators.required],
-      estado: [[]]
+      estado: ['', Validators.required] 
     });
   }
 
-  ngOnInit() {
-    this.loadTasks();
+  async ngOnInit() {
+    await this.loadTasks();
   }
 
   loadTasks() {
@@ -53,23 +55,25 @@ export class UserPage implements OnInit {
 
   saveUser() {
     if (this.userForm.valid) {
-      const taskData: Task = this.userForm.value;
-      
-      if (this.isEditing && taskData.id) {
-        this.tas.actualizarTarea(taskData).subscribe({
+      const formData = this.userForm.value;
+  
+      if (this.isEditing && formData.id) {
+        this.tas.actualizarTarea(formData).subscribe({
           next: (updatedTask) => {
-            this.loadTasks();
-            this.closeForm();
+            console.log('Tarea actualizada:', updatedTask);
+            this.loadTasks(); 
+            this.closeForm(); 
           },
-          error: (err) => console.error('Error al actualizar tarea:', err)
+          error: (err) => console.error('Error al actualizar:', err)
         });
       } else {
-        this.tas.crearTarea(taskData).subscribe({
+        this.tas.crearTarea(formData).subscribe({
           next: (newTask) => {
+            console.log('Tarea creada:', newTask);
             this.loadTasks();
             this.closeForm();
           },
-          error: (err) => console.error('Error al crear tarea:', err)
+          error: (err) => console.error('Error al crear:', err)
         });
       }
     }
