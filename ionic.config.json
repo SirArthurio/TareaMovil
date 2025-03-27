@@ -1,0 +1,7 @@
+{
+  "name": "Tarea",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular-standalone"
+}
